@@ -231,7 +231,7 @@ def apply_tropomi_operator(
         # Get the date and hour
         iSat = sat_ind[0][k]  # lat index
         jSat = sat_ind[1][k]  # lon index
-        time = pd.to_datetime(str(TROPOMI["utctime"][iSat]))
+        time = pd.to_datetime(str(TROPOMI["time"][iSat,jSat]))
         strdate = time.round("60min").strftime("%Y%m%d_%H")
         all_strdate.append(strdate)
     all_strdate = list(set(all_strdate))
@@ -253,7 +253,7 @@ def apply_tropomi_operator(
         dry_air_subcolumns = TROPOMI["dry_air_subcolumns"][iSat, jSat, :]  # mol m-2
         apriori = TROPOMI["methane_profile_apriori"][iSat, jSat, :]  # mol m-2
         avkern = TROPOMI["column_AK"][iSat, jSat, :]
-        time = pd.to_datetime(str(TROPOMI["utctime"][iSat]))
+        time = pd.to_datetime(str(TROPOMI["time"][iSat,jSat]))
         strdate = time.round("60min").strftime("%Y%m%d_%H")
         GEOSCHEM = all_date_gc[strdate]
         dlon = np.median(np.diff(GEOSCHEM["lon"])) # GEOS-Chem lon resolution
@@ -586,7 +586,7 @@ def read_blended(filename):
         dat[key] = np.expand_dims(dat[key], axis=0)
         
     return dat
-    
+
 
 def average_tropomi_observations(TROPOMI, gc_lat_lon, sat_ind):
     """
@@ -702,7 +702,7 @@ def average_tropomi_observations(TROPOMI, gc_lat_lon, sat_ind):
                 gridcell_dict[
                     "time"
                 ].append(  # convert times to epoch time to make taking the mean easier
-                    int(pd.to_datetime(str(TROPOMI["utctime"][iSat])).strftime("%s"))
+                    int(pd.to_datetime(str(TROPOMI["time"][iSat,jSat])).strftime("%s"))
                 )
                 gridcell_dict["methane"].append(
                     TROPOMI["methane"][iSat, jSat]
