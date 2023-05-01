@@ -3,7 +3,10 @@ import xarray as xr
 import pandas as pd
 import datetime
 from shapely.geometry import Polygon
-from utils import filter_tropomi
+from utils import (
+    filter_tropomi,
+    filter_blended,
+)
 from operators.operator_utilities import (
     get_gc_lat_lon,
     read_all_geoschem,
@@ -17,6 +20,7 @@ from operators.operator_utilities import (
 
 def apply_average_tropomi_operator(
     filename,
+    blended,
     n_elements,
     gc_startdate,
     gc_enddate,
@@ -31,6 +35,7 @@ def apply_average_tropomi_operator(
 
     Arguments
         filename       [str]        : TROPOMI netcdf data file to read
+        blended        [bool]       : if True, use blended TROPOMI+GOSAT data
         n_elements     [int]        : Number of state vector elements
         gc_startdate   [datetime64] : First day of inversion period, for GEOS-Chem and TROPOMI
         gc_enddate     [datetime64] : Last day of inversion period, for GEOS-Chem and TROPOMI
@@ -52,13 +57,20 @@ def apply_average_tropomi_operator(
     """
 
     # Read TROPOMI data
-    TROPOMI = read_tropomi(filename)
+    if blended:
+        TROPOMI = read_blended(filename)
+    else:
+        TROPOMI = read_tropomi(filename)
     if TROPOMI == None:
         print(f"Skipping {filename} due to file processing issue.")
         return TROPOMI
 
-    # We're only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
-    sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
+    if blended:
+        # Only going to consider data within lat/lon/time bounds and without problematic coastal pixels
+        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_endate)
+    else:
+        # Only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
+        sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
 
     # get the lat/lons of gc gridcells
     gc_lat_lon = get_gc_lat_lon(gc_cache, gc_startdate)
@@ -170,6 +182,7 @@ def apply_average_tropomi_operator(
 
 def apply_tropomi_operator(
     filename,
+    blended,
     n_elements,
     gc_startdate,
     gc_enddate,
@@ -184,6 +197,7 @@ def apply_tropomi_operator(
 
     Arguments
         filename       [str]        : TROPOMI netcdf data file to read
+        blended        [bool]       : if True, use blended TROPOMI+GOSAT data
         n_elements     [int]        : Number of state vector elements
         gc_startdate   [datetime64] : First day of inversion period, for GEOS-Chem and TROPOMI
         gc_enddate     [datetime64] : Last day of inversion period, for GEOS-Chem and TROPOMI
@@ -205,13 +219,20 @@ def apply_tropomi_operator(
     """
 
     # Read TROPOMI data
-    TROPOMI = read_tropomi(filename)
+    if blended:
+        TROPOMI = read_blended(filename)
+    else:
+        TROPOMI = read_tropomi(filename)
     if TROPOMI == None:
         print(f"Skipping {filename} due to file processing issue.")
         return TROPOMI
 
-    # We're only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
-    sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
+    if blended:
+        # Only going to consider data within lat/lon/time bounds and without problematic coastal pixels
+        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_endate)
+    else:
+        # Only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
+        sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
 
     # Number of TROPOMI observations
     n_obs = len(sat_ind[0])
