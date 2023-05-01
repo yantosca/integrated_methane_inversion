@@ -64,7 +64,7 @@ fi
 if "$WriteBCs"; then
 
     # Make sure dirs are empty so we don't accidentally overwrite them
-    dirs = ("${workdir}/step1" "${workdir}/step2" "${workdir}/step3" "${workdir}/smoothed-boundary-conditions" "${workdir}/runGCC1402")
+    dirs = ("${workdir}/step1" "${workdir}/step2" "${workdir}/step3" "${workdir}/smoothed-boundary-conditions")
     create_and_check_dirs "${dirs[@]}"
     
     # Run python scripts
