@@ -21,7 +21,7 @@ if "$RunGEOSChem"; then
     source ${imidir}/envs/Harvard-Cannon/gcc.gfortran10.2_cannon.env
 
     # Make sure runGCC1402 is empty so we don't accidentally overwrite it
-    dirs="${workdir}/runGCC1402"
+    dirs=("${workdir}/runGCC1402")
     create_and_check_dirs "${dirs[@]}"
 
     # Remove directories if they exist
@@ -64,7 +64,7 @@ fi
 if "$WriteBCs"; then
 
     # Make sure dirs are empty so we don't accidentally overwrite them
-    dirs = ("${workdir}/step1" "${workdir}/step2" "${workdir}/step3" "${workdir}/smoothed-boundary-conditions")
+    dirs=("${workdir}/step1" "${workdir}/step2" "${workdir}/step3" "${workdir}/smoothed-boundary-conditions")
     create_and_check_dirs "${dirs[@]}"
     
     # Run python scripts
@@ -74,6 +74,6 @@ if "$WriteBCs"; then
     sbatch -W -p seas_compute -t 2-00:00 --mem 64000 --wrap "source ~/.bashrc; conda activate $CondaEnv; python write_boundary.py"; wait;
 
     # Replace the days we don't have TROPOMI data with initial GC outputs
-    cp ${workdir}/runGCC1402/OutputDir/GEOSChem.BoundaryConditions.201804{01..29}_0000z.nc4 ${workdir}/smoothed-boundary-conditions
+    cp ${gccache}/GEOSChem.BoundaryConditions.201804{01..29}_0000z.nc4 ${workdir}/smoothed-boundary-conditions
 
 fi
