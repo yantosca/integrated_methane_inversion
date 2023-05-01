@@ -12,6 +12,9 @@ StartDate: 20180501
 EndDate: 20180508
 SpinupMonths: 1
 
+## Use blended TROPOMI+GOSAT data (true)? Or use operational TROPOMI data (false)?
+Blended: true
+
 ## Use nested grid simulation?
 NestedGrid: true
 
