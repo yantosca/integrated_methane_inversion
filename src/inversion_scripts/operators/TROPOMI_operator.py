@@ -552,13 +552,15 @@ def read_blended(filename):
                             - Vertical pressure profile
     """
 
-    # Test to make sure the file can be opened
+    # Test to make sure the file can be opened (and it is a blended file)
     try:
         with xr.open_dataset(filename) as _:
             pass
     except Exception as e:
         print(f"Error opening {filename}: {e}")
         return None
+    
+    assert "BLND" in filename, "BLND not in filename, but a blended function is being used"
 
     # Initialize dictionary for Blended TROPOMI+GOSAT data
     dat = {}
