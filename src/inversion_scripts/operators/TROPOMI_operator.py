@@ -229,7 +229,7 @@ def apply_tropomi_operator(
 
     if blended:
         # Only going to consider data within lat/lon/time bounds and without problematic coastal pixels
-        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_endate)
+        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
     else:
         # Only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
         sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
