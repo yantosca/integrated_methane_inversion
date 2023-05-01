@@ -21,7 +21,7 @@ if "$RunGEOSChem"; then
     source ${imidir}/envs/Harvard-Cannon/gcc.gfortran10.2_cannon.env
 
     # Make sure runGCC1402 is empty so we don't accidentally overwrite it
-    dirs = ("${workdir}/runGCC1402")
+    dirs="${workdir}/runGCC1402"
     create_and_check_dirs "${dirs[@]}"
 
     # Remove directories if they exist
