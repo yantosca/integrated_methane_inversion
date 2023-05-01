@@ -4,12 +4,25 @@
 source ../utilities/parse_yaml.sh
 eval $(parse_yaml config_write_BCs.yml)
 
-# Make directories if they don't exists
-mkdir -p ${workdir}/step1 ${workdir}/step2 ${workdir}/step3 ${workdir}/smoothed-boundary-conditions
+# Make directories if they don't exists (and throw an error if they are not empty so we don't accidentally overwrite anything)
+function create_and_check_dirs() {
+    local dirs=("$@")
+    for dir in "${dirs[@]}"; do
+        mkdir -p "$dir"
+        if [[ $(find "$dir" -mindepth 1 -print -quit) ]]; then
+            echo "Error: Directory $dir contains files."
+            exit 1
+        fi
+    done
+}
 
 if "$RunGEOSChem"; then
     # Load modules
     source ${imidir}/envs/Harvard-Cannon/gcc.gfortran10.2_cannon.env
+
+    # Make sure runGCC1402 is empty so we don't accidentally overwrite it
+    dirs = ("${workdir}/runGCC1402")
+    create_and_check_dirs "${dirs[@]}"
 
     # Remove directories if they exist
     rm -rf ${imidir}/src/write_BCs/GCClassic
@@ -49,6 +62,10 @@ if "$RunGEOSChem"; then
 fi
 
 if "$WriteBCs"; then
+
+    # Make sure dirs are empty so we don't accidentally overwrite them
+    dirs = ("${workdir}/step1" "${workdir}/step2" "${workdir}/step3" "${workdir}/smoothed-boundary-conditions" "${workdir}/runGCC1402")
+    create_and_check_dirs "${dirs[@]}"
     
     # Run python scripts
     cd ${imidir}/src/write_BCs
