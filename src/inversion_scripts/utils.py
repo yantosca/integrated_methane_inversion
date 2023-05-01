@@ -209,7 +209,7 @@ def filter_tropomi(tropomi_data, xlim, ylim, startdate, enddate):
         & (tropomi_data["qa_value"] >= 0.5)
         & (tropomi_data["swir_albedo"] > 0.05)
         & (tropomi_data["blended_albedo"] < 0.85)
-        & (tropomi_data["longitude_bounds"].ptp(axis=2) < 180)
+        & (tropomi_data["longitude_bounds"].ptp(axis=2) < 5)
     )
 
 
@@ -232,7 +232,7 @@ def filter_blended(blended_data, xlim, ylim, startdate, enddate):
         & (blended_data["latitude"] < ylim[1])
         & (blended_data["time"] >= startdate)
         & (blended_data["time"] <= enddate)
-        & (blended_data["longitude_bounds"].ptp(axis=2) < 180)
+        & (blended_data["longitude_bounds"].ptp(axis=2) < 5)
         & ~((blended_data["surface_classification"] == 3) | ((blended_data["surface_classification"] == 2) & (blended_data["chi_square_SWIR"][:] > 20000)))
     )
 
