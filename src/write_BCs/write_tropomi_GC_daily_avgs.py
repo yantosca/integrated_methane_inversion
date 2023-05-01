@@ -62,7 +62,11 @@ if __name__ == "__main__":
     end_time_of_interest = np.datetime64(datetime.datetime.strptime(config["enddate"], "%Y%m%dT%H%M%S"))
 
     # List of all TROPOMI files that interesct our time period of interest
-    TROPOMI_files = sorted([file for file in glob.glob(os.path.join(config["tropomi_cache"], "*.nc"))
+    if config["blended"]:
+        sat_cache = config["blended_cache"]
+    else:
+        sat_cache = config["tropomi_cache"]
+    TROPOMI_files = sorted([file for file in glob.glob(os.path.join(sat_cache, "*.nc"))
                             if (start_time_of_interest <= get_TROPOMI_times(file)[0] <= end_time_of_interest)
                             and (start_time_of_interest <= get_TROPOMI_times(file)[1] <= end_time_of_interest)])
 
