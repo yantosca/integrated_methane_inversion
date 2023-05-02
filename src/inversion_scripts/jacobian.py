@@ -71,7 +71,7 @@ if __name__ == "__main__":
     latmax = float(sys.argv[6])
     n_elements = int(sys.argv[7])
     tropomi_cache = sys.argv[8]
-    blended = sys.argv[9]
+    blended = sys.argv[9] == "true"
     isPost = sys.argv[10]
 
     # Reformat start and end days for datetime in configuration
