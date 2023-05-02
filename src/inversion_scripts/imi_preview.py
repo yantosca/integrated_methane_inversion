@@ -24,16 +24,20 @@ from utils import (
     count_obs_in_mask,
     plot_field,
     filter_tropomi,
+    filter_blended,
     calculate_area_in_km,
 )
 from joblib import Parallel, delayed
-from operators.TROPOMI_operator import read_tropomi
+from operators.TROPOMI_operator import (
+    read_tropomi,
+    read_blended,
+)
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
-def get_TROPOMI_data(file_path, xlim, ylim, startdate_np64, enddate_np64):
+def get_TROPOMI_data(file_path, config, xlim, ylim, startdate_np64, enddate_np64):
     """
     Returns a dict with the lat, lon, xch4, and albedo_swir observations
     extracted from the given tropomi file. Filters are applied to remove
@@ -41,6 +45,8 @@ def get_TROPOMI_data(file_path, xlim, ylim, startdate_np64, enddate_np64):
     Args:
         file_path : string
             path to the tropomi file
+        config : dict
+            dictionary of config file values
         xlim: list
             longitudinal bounds for region of interest
         ylim: list
@@ -57,15 +63,23 @@ def get_TROPOMI_data(file_path, xlim, ylim, startdate_np64, enddate_np64):
     tropomi_data = {"lat": [], "lon": [], "xch4": [], "swir_albedo": []}
 
     # Load the TROPOMI data
-    TROPOMI = read_tropomi(file_path)
+    if config["Blended"]:
+        TROPOMI = read_blended(filename)
+    else:
+        TROPOMI = read_tropomi(filename)
 
     # Handle unreadable files
     if TROPOMI == None:
         print(f"Skipping {file_path} due to error")
         return TROPOMI
 
-    # We're only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
-    sat_ind = filter_tropomi(TROPOMI, xlim, ylim, startdate_np64, enddate_np64)
+    # Filter the TROPOMI data
+    if config["Blended"]:
+        # Only going to consider data within lat/lon/time bounds and without problematic coastal pixels
+        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_endate)
+    else:
+        # Only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
+        sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
 
     # Loop over observations and archive
     num_obs = len(sat_ind[0])
@@ -417,7 +431,7 @@ def estimate_averaging_kernel(
 
     # read in and filter tropomi observations (uses parallel processing)
     observation_dicts = Parallel(n_jobs=-1)(
-        delayed(get_TROPOMI_data)(file_path, xlim, ylim, startdate_np64, enddate_np64)
+        delayed(get_TROPOMI_data)(file_path, config, xlim, ylim, startdate_np64, enddate_np64)
         for file_path in tropomi_paths
     )
     # remove any problematic observation dicts (eg. corrupted data file)
