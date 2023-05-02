@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # From config file, get the start and end times that we will be writing boundary conditions for
     start_time_of_interest = np.datetime64(datetime.datetime.strptime(config["startdate"], "%Y%m%dT%H%M%S"))
-    end_time_of_interest = np.datetime64(datetime.datetime.strptime(config["enddate"], "%Y%m%dT%H%M%S"))
+    end_time_of_interest = np.datetime64(datetime.datetime.strptime(config["enddate"], "%Y%m%dT%H%M%S")) - np.timedelta64(1, 'h') # my end date is T235959, but GC doesn't write hour 23
 
     # List of all TROPOMI files that interesct our time period of interest
     if config["blended"]:
