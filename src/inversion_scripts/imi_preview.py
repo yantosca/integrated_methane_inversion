@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# SBATCH -N 1
-# SBATCH -n 8
-# SBATCH --mem={PREVIEW_MEMORY}
+#SBATCH -N 1
+#SBATCH -n 8
+#SBATCH --mem={PREVIEW_MEMORY}
 
 import sys
 import numpy as np
@@ -64,9 +64,9 @@ def get_TROPOMI_data(file_path, config, xlim, ylim, startdate_np64, enddate_np64
 
     # Load the TROPOMI data
     if config["Blended"]:
-        TROPOMI = read_blended(filename)
+        TROPOMI = read_blended(file_path)
     else:
-        TROPOMI = read_tropomi(filename)
+        TROPOMI = read_tropomi(file_path)
 
     # Handle unreadable files
     if TROPOMI == None:
@@ -76,10 +76,10 @@ def get_TROPOMI_data(file_path, config, xlim, ylim, startdate_np64, enddate_np64
     # Filter the TROPOMI data
     if config["Blended"]:
         # Only going to consider data within lat/lon/time bounds and without problematic coastal pixels
-        sat_ind = filter_blended(TROPOMI, xlim, ylim, gc_startdate, gc_endate)
+        sat_ind = filter_blended(TROPOMI, xlim, ylim, startdate_np64, enddate_np64)
     else:
         # Only going to consider data within lat/lon/time bounds, with QA > 0.5, and with safe surface albedo values
-        sat_ind = filter_tropomi(TROPOMI, xlim, ylim, gc_startdate, gc_enddate)
+        sat_ind = filter_tropomi(TROPOMI, xlim, ylim, startdate_np64, enddate_np64)
 
     # Loop over observations and archive
     num_obs = len(sat_ind[0])
